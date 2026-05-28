@@ -33,7 +33,6 @@ export async function register(
 
   // refresh
   const refreshToken = signRefreshToken({ sub: userSnap.id });
-
   const accessToken = signAccessToken({
     sub: userSnap.id,
     role: userSafe.role,
@@ -48,11 +47,28 @@ export async function register(
 
 export async function login(email: string, password: string) {
   // check email exist
-  const user = await db
+  const userSnap = await db
     .collection("users")
     .where("email", "==", email)
     .limit(1)
     .get();
+  if (userSnap.empty) throw new Error("Email does not exist");
+  const userData = userSnap.docs[0].data();
 
-  if (user.empty) throw new Error("Email does not exist");
+  // check user password
+  const isMatch = await bcrypt.compare(password, userData.password);
+  if (!isMatch) throw new Error("Email or password is incorrect");
+
+  // refresh
+  const refreshToken = signRefreshToken({ sub: userData.id });
+  const accessToken = signAccessToken({
+    sub: userData.id,
+    role: userData.role,
+  });
+
+  return {
+    userId: userData.id,
+    refreshToken,
+    accessToken,
+  };
 }
