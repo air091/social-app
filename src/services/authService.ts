@@ -24,14 +24,16 @@ export async function register(
   if (!userData) throw new Error("No user");
   const { password: value, ...userSafe } = userData;
 
-  //   refresh
+  // refresh
   const refreshToken = signRefreshToken({ sub: userSnap.id });
+
   const accessToken = signAccessToken({
     sub: userSnap.id,
     role: userSafe.role,
   });
 
   return {
+    userId: userSnap.id,
     refreshToken,
     accessToken,
   };
