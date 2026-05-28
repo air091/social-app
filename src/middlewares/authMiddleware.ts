@@ -32,5 +32,27 @@ export async function authenticate(
 
     request.user = payload;
     next();
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+    return response
+      .status(401)
+      .json({ message: error instanceof Error ? error.message : error });
+  }
+}
+
+export function requireRole(role: string) {
+  return (request: Request, response: Response, next: NextFunction) => {
+    const user = request.user;
+    if (!user)
+      return response
+        .status(401)
+        .json({ success: false, message: "Unauthorized" });
+
+    if (user.role !== role)
+      return response
+        .status(403)
+        .json({ success: false, message: "Forbidden" });
+
+    next();
+  };
 }
