@@ -1,6 +1,6 @@
 import "dotenv/config";
-import { db } from "../db";
-import { login, register } from "../services/authService";
+import { db } from "../db.js";
+import { login, register } from "../services/authService.js";
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
 
