@@ -54,20 +54,19 @@ export async function login(email: string, password: string) {
     .get();
   if (userSnap.empty) throw new Error("Email does not exist");
   const userData = userSnap.docs[0].data();
-
   // check user password
   const isMatch = await bcrypt.compare(password, userData.password);
   if (!isMatch) throw new Error("Email or password is incorrect");
 
   // refresh
-  const refreshToken = signRefreshToken({ sub: userData.id });
+  const refreshToken = signRefreshToken({ sub: userSnap.docs[0].id });
   const accessToken = signAccessToken({
     sub: userData.id,
     role: userData.role,
   });
 
   return {
-    userId: userData.id,
+    userId: userSnap.docs[0].id,
     refreshToken,
     accessToken,
   };
