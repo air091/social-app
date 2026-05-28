@@ -10,6 +10,13 @@ export async function register(
   email = email.trim().toLowerCase();
   username = username.trim();
 
+  const userExistRef = await db
+    .collection("users")
+    .where("email", "==", email)
+    .get();
+
+  if (!userExistRef.empty) throw new Error("Email already exist");
+
   const hashedPassword = await bcrypt.hash(password, 10);
   const userRef = await db.collection("users").add({
     username,
@@ -37,4 +44,15 @@ export async function register(
     refreshToken,
     accessToken,
   };
+}
+
+export async function login(email: string, password: string) {
+  // check email exist
+  const user = await db
+    .collection("users")
+    .where("email", "==", email)
+    .limit(1)
+    .get();
+
+  if (user.empty) throw new Error("Email does not exist");
 }
